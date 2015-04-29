@@ -14,7 +14,7 @@ module.exports = brace;
 function brace(a) {
   var newarray = [];
 
-  function push(cur) {
+  function push() {
     if (obj) {
       var s = f('%s{%s..%s}%s', obj.base, obj.start, obj.end, obj.suffix);
       newarray.push(s);
@@ -36,7 +36,7 @@ function brace(a) {
     var next_extract = extract(next);
 
     if (cur_extract.length !== next_extract.length) {
-      push(cur);
+      push();
       continue;
     }
 
@@ -57,7 +57,7 @@ function brace(a) {
 
       // if either is a string, we can't expand, so just push it on the array and move on
       if (typeof cur_elem_parsed === 'string' || typeof next_elem_parsed === 'string') {
-        push(cur);
+        push();
         break;
       }
 
@@ -90,13 +90,13 @@ function brace(a) {
       }
 
       // nope, try again
-      push(cur);
+      push();
       break;
     }
   }
 
   // cleanup remainder
-  push(cur);
+  push();
 
   // final object
   return newarray.join(' ');

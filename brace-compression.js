@@ -110,8 +110,5 @@ function extract(s) {
 // try to cast to a number, return the number or just the string
 function numeric(s) {
   var num = parseInt(s, 10);
-  if (isNaN(num))
-    return s;
-  else
-    return num;
+  return isNaN(num) ? s : num;
 }

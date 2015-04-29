@@ -1,0 +1,27 @@
+{
+  "name": "brace-compression",
+  "description": "Reverse brace expansion (like sh/bash)",
+  "version": "0.0.0",
+  "author": "Dave Eddy <dave@daveeddy.com> (http://www.daveeddy.com)",
+  "contributors": [],
+  "main": "./brace-compression.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/bahamas10/node-brace-compression.git"
+  },
+  "scripts": {
+    "test": "./test.js"
+  },
+  "dependencies": {},
+  "devDependencies": {},
+  "optionalDependencies": {},
+  "engines": {
+    "node": "*"
+  },
+  "keywords": [
+    "sh",
+    "bash",
+    "brace",
+    "expansion"
+  ]
+}

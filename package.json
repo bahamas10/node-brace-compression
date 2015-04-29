@@ -12,6 +12,9 @@
   "scripts": {
     "test": "./test.js"
   },
+  "bin": {
+    "brace-compress": "./bin/brace-compress.js"
+  },
   "dependencies": {},
   "devDependencies": {},
   "optionalDependencies": {},

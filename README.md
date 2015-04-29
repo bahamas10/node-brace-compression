@@ -6,7 +6,7 @@ Reverse brace expansion (like sh/bash)
 Warnings
 --------
 
-- the output not escaped nor necessarily safe to parse using the shell,
+- the output is not escaped or necessarily safe to parse using the shell -
 this is just meant to compress data for human-readable purposes.
 - may not work in every case
 

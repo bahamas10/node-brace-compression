@@ -27,10 +27,20 @@ console.log(compress(data));
 
 The input array should be sorted before being passed to `compress`
 
+CLI
+---
+
+    $ cat file.txt
+    foo-1
+    foo-2
+    foo-3
+    $ cat file.txt | brace-compress
+    foo-{1..3}
+
 Installation
 ------------
 
-    npm install brace-compression
+    npm install [-g] brace-compression
 
 License
 -------

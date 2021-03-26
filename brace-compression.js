@@ -1,114 +1,87 @@
-/**
- * Brace Compression
- *
- * Reverse brace expansion (like sh/bash)
- *
- * Author: Dave Eddy <dave@daveeddy.com>
- * Date: April 29, 2015
- * License: MIT
- */
+var assert = require('assert');
+var util = require('util');
 
-var f = require('util').format;
+module.exports = braceCompress;
 
-module.exports = brace;
-function brace(a) {
-  var newarray = [];
+var numRe = /^([^1-9]*)([1-9][0-9]*)(.*)$/;
 
-  function push() {
-    if (obj) {
-      var s = f('%s{%s..%s}%s', obj.base, obj.start, obj.end, obj.suffix);
-      newarray.push(s);
-      obj = null;
-    } else {
-      newarray.push(cur);
-    }
-  }
+function braceCompress(arr) {
+    var out = [];
+    var state = {};
 
-  var obj, cur, next;
-  for (var i = 0; i < a.length; i++) {
-    cur = a[i];
-    next = a[i+1];
+    checkAndResetState();
+    arr.forEach(function (line) {
+        var m = line.match(numRe);
 
-    if (!next)
-      break;
-
-    var cur_extract = extract(cur);
-    var next_extract = extract(next);
-
-    if (cur_extract.length !== next_extract.length) {
-      push();
-      continue;
-    }
-
-    var index = 0;
-    for (var j = 0; j < cur_extract.length; j++) {
-      var cur_elem = cur_extract[j];
-      var next_elem = next_extract[j];
-
-      var cur_elem_parsed = numeric(cur_elem);
-      var next_elem_parsed = numeric(next_elem);
-
-      // if the elements are the same, increment the index
-      // and keep going
-      if (cur_elem === next_elem) {
-        index += cur_elem.length;
-        continue;
-      }
-
-      // if either is a string, we can't expand, so just push it on the array and move on
-      if (typeof cur_elem_parsed === 'string' || typeof next_elem_parsed === 'string') {
-        push();
-        break;
-      }
-
-      // at this point they are both numbers
-      // see if cur is 1 below next
-      if (cur_elem_parsed + 1 === next_elem_parsed) {
-        // make sure the endings are the same
-        var same = true;
-        for (var k = j + 1; k < cur_extract.length; k++) {
-          if (cur_extract[k] !== next_extract[k]) {
-            same = false;
-            break;
-          }
+        // no numbers found
+        if (!m) {
+            checkAndResetState();
+            out.push(line);
+            return;
         }
 
-        if (same) {
-          // can be collapsed!
-          if (!obj) {
-            var base = cur.substr(0, index);
-            var suffix = cur.substr(index + cur_elem.length, cur.length);
-            obj = {
-              start: cur_elem_parsed,
-              base: base,
-              suffix: suffix,
-            };
-          }
-          obj.end = next_elem_parsed;
-          break;
+        // numbers found
+        var prefix = m[1];
+        var num = parseInt(m[2], 10);
+        var suffix = m[3];
+
+        assert(!isNaN(num));
+
+        // we are currently processing a number and this new line has the same
+        // suffix, prefix, and a number one higher than the last
+        if (state.inNumber &&
+            state.prefix === prefix &&
+            state.suffix === suffix &&
+            state.lastNum + 1 === num) {
+
+            state.records++;
+            state.lastNum = num;
+            state.lastLine = line;
+            return;
         }
-      }
 
-      // nope, try again
-      push();
-      break;
+        // begin a new number
+        checkAndResetState();
+
+        // set state to new number
+        state.inNumber = true;
+        state.records++;
+        state.prefix = prefix;
+        state.suffix = suffix;
+        state.startNum = num;
+        state.lastNum = num;
+        state.origLine = line;
+        state.lastLine = line;
+    });
+    checkAndResetState();
+
+    // process any numbers currently waiting, and reset the state variable
+    function checkAndResetState() {
+        var s;
+
+        if (state.inNumber) {
+            assert(state.records >= 1);
+
+            if (state.records === 1) {
+                s = state.lastLine;
+            } else {
+                s = util.format('%s{%d..%d}%s', state.prefix, state.startNum,
+                    state.lastNum, state.suffix);
+            }
+
+            out.push(s);
+        }
+
+        state.inNumber = false;
+        state.records = 0;
+        state.prefix = null;
+        state.suffix = null;
+        state.startNum = 0;
+        state.lastNum = 0;
+        state.origLine = null;
+        state.lastLine = null;
     }
-  }
 
-  // cleanup remainder
-  push();
+    return out;
 
-  // final object
-  return newarray.join(' ');
-}
-
-// break a string into sections
-function extract(s) {
-  return s.match(/([1-9][0-9]*|[^1-9]+0*)/g);
-}
-
-// try to cast to a number, return the number or just the string
-function numeric(s) {
-  var num = parseInt(s, 10);
-  return isNaN(num) ? s : num;
 }

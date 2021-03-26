@@ -13,4 +13,4 @@ var compress = require('../');
 
 var input = fs.readFileSync('/dev/stdin', 'utf8').trim().split('\n');
 
-console.log(compress(input));
+console.log(compress(input).join(' '));

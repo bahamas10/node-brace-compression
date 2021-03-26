@@ -9,6 +9,7 @@ Warnings
 - the output is not escaped or necessarily safe to parse using the shell -
 this is just meant to compress data for human-readable purposes.
 - may not work in every case
+- output is an array
 
 Example
 -------
@@ -16,12 +17,13 @@ Example
 ``` js
 var compress = require('brace-compression');
 var data = [
-  'foo-1',
-  'foo-2',
-  'foo-3'
+    'foo-1',
+    'foo-2',
+    'foo-3'
 ];
 
-console.log(compress(data));
+var s = compress(data).join(' ');
+console.log(s);
 // => "foo-{1..3}"
 ```
 
